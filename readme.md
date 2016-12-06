@@ -19,7 +19,8 @@ Extended features:
 An option to show all posts published by the page on a specific day
 
 Sketch
-Login few prompts users to login.
+
+Login view prompts users to login.
 Data view shows the graph and an option to choose custom dates.
 https://aviss.mybalsamiq.com/mockups/5271815.png?key=46fecf33f2bcfde8e0ce94896f061825c985ca2c
 
