@@ -1,4 +1,4 @@
-#import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
 
 data = [
     {
@@ -134,7 +134,7 @@ for item in values:
   print(date)
   print(ptat_list)
   print(len(ptat_list))
-#  print(ptat_dic)
-#  plt.bar(range(len(ptat_dic)), ptat_dic.values(), align='center')
-#  plt.xticks(range(len(ptat_dic)), ptat_dic.keys())
-#  plt.show()
+  print(ptat_dic)
+  plt.bar(range(len(ptat_dic)), ptat_dic.values(), align='center')
+  plt.xticks(range(len(ptat_dic)), ptat_dic.keys())
+  plt.show()

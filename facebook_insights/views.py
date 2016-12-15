@@ -54,8 +54,8 @@ def ptat_post():
     date_unitl_unix = datetime.datetime.strptime(date_until, "%d%b%Y")
     until = str(calendar.timegm(date_unitl_unix.utctimetuple()))
 #Supply args for URL    
-#    www
-#    www
+    page_name = 'NAME'
+    token = 'TOKEN'
     r = requests.get('https://graph.facebook.com/v2.8/'+page_name+'/insights/page_story_adds_by_age_gender_unique/day?since='+since+'&until='+until+'&access_token='+token+'')
     json_object = r.json()
     data = json_object['data']
@@ -66,15 +66,12 @@ def ptat_post():
     values = data[0]['values']
     for item in values:
         date = item['end_time']
-        for v in item['value']:
-            ptat_list = []
-            for key in gender_age_brackets:
-                ufm = item['value'].get(key, 0)
-                ptat_dic[key] = ufm
-                ptat_list.append(ufm)
-                ptat = FacebookInsights(date=date, gender=key[0], age=key[2:], value=ufm)
-                session.add(ptat)
-                session.commit()
+        for key in gender_age_brackets:
+            ufm = item['value'].get(key, 0)
+            ptat_dic[key] = ufm
+            ptat = FacebookInsights(date=date, gender=key[0], age=key[2:], value=ufm)
+            session.add(ptat)
+            session.commit()
                 
 #printing lots of stuff for testing    
     print(session.query(FacebookInsights.date).distinct().all())
