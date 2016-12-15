@@ -5,11 +5,12 @@ from .database import session, FacebookInsights
 import datetime
 import calendar
 import requests
-
+import re
+from sqlalchemy import func
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    return render_template('select.html')
     
 from flask import request, redirect, url_for
 
@@ -19,6 +20,27 @@ from flask import request, redirect, url_for
 #from werkzeug.security import check_password_hash
 #from .database import User
 #from werkzeug.security import generate_password_hash
+
+@app.route("/login", methods=["GET"])
+def login_get():
+    return render_template("login.html")
+"""
+@app.route("/login", methods=["POST"])
+def login_post():
+    email = request.form["email"]
+    password = request.form["password"]
+    user = session.query(User).filter_by(email=email).first()
+    if not user or not check_password_hash(user.password, password):
+        flash("Incorrect username or password", "danger")
+        return redirect(url_for("login_get"))
+    login_user(user)
+    return redirect(request.args.get('next') or url_for("entries"))
+
+@app.route("/logout")
+def logout():
+    logout_user()
+    return render_template("logout.html")
+"""
 
 #Storing API response
 @app.route("/ptat", methods=["POST"])
@@ -32,8 +54,8 @@ def ptat_post():
     date_unitl_unix = datetime.datetime.strptime(date_until, "%d%b%Y")
     until = str(calendar.timegm(date_unitl_unix.utctimetuple()))
 #Supply args for URL    
-    page_name = 'page_name'
-    token = 'token'
+#    www
+#    www
     r = requests.get('https://graph.facebook.com/v2.8/'+page_name+'/insights/page_story_adds_by_age_gender_unique/day?since='+since+'&until='+until+'&access_token='+token+'')
     json_object = r.json()
     data = json_object['data']
@@ -43,38 +65,28 @@ def ptat_post():
     #Iterate through the response
     values = data[0]['values']
     for item in values:
-      end_time = item['end_time']
-      for v in item['value']:
-        ptat_list = []
-        for key in gender_age_brackets:
-          ufm = item['value'].get(key, 0)
-          ptat_dic[key] = ufm
-          ptat_list.append(ufm)
-        ptat = FacebookInsights(
-            end_time = end_time,
-            U1 = ptat_list[0],
-            U2 = ptat_list[1],
-            U3 = ptat_list[2],
-            U4 = ptat_list[3],
-            U5 = ptat_list[4],
-            U6 = ptat_list[5],
-            U7 = ptat_list[6],
-            F1 = ptat_list[7],
-            F2 = ptat_list[8],
-            F3 = ptat_list[9],
-            F4 = ptat_list[10],
-            F5 = ptat_list[11],
-            F6 = ptat_list[12],
-            F7 = ptat_list[13],
-            M1 = ptat_list[14],
-            M2 = ptat_list[15],
-            M3 = ptat_list[16],
-            M4 = ptat_list[17],
-            M5 = ptat_list[18],
-            M6 = ptat_list[19],
-            M7 = ptat_list[20],
-        )
-    session.add(ptat)
-    session.commit()
-    print(session.query(FacebookInsights.end_time).all())
+        date = item['end_time']
+        for v in item['value']:
+            ptat_list = []
+            for key in gender_age_brackets:
+                ufm = item['value'].get(key, 0)
+                ptat_dic[key] = ufm
+                ptat_list.append(ufm)
+                ptat = FacebookInsights(date=date, gender=key[0], age=key[2:], value=ufm)
+                session.add(ptat)
+                session.commit()
+                
+#printing lots of stuff for testing    
+    print(session.query(FacebookInsights.date).distinct().all())
+#    print(session.query(FacebookInsights.gender).distinct().all())
+#    print(session.query(FacebookInsights.age).distinct().all())
+#    print(session.query(FacebookInsights.date).order_by(FacebookInsights.date.desc()).first())
+#    print(session.query(FacebookInsights.value).order_by(FacebookInsights.value.desc()).first())
+#    f_query, f_peak_date = session.query(FacebookInsights.value, FacebookInsights.date).filter(FacebookInsights.gender=='F').order_by(FacebookInsights.value.desc()).first()
+#    print("The highest number of female users was " + str(f_query) + " on " + str(f_peak_date))
+    f_total = session.query(FacebookInsights.date,func.sum(FacebookInsights.value).label('total')).filter(FacebookInsights.gender=='F').group_by(FacebookInsights.date).all()
+    m_total = session.query(FacebookInsights.date,func.sum(FacebookInsights.value).label('total')).filter(FacebookInsights.gender=='M').group_by(FacebookInsights.date).all()
+    print(f_total)
+    print(m_total)
+    
     return render_template('ptat.html')
