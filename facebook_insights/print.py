@@ -137,4 +137,21 @@ for item in values:
   print(ptat_dic)
   plt.bar(range(len(ptat_dic)), ptat_dic.values(), align='center')
   plt.xticks(range(len(ptat_dic)), ptat_dic.keys())
-  plt.show()
+  plt.save()
+  
+
+
+    x = female_keys
+    x = date2num(x)
+#    x = np.arange(len(x))
+    y = female_values
+    z = male_values
+    
+    width=0.3
+    opacity = 0.6
+    ax = plt.subplot(111)
+    ax.bar(x, y, width, color='r',align='center', alpha=opacity)
+    ax.bar(x+width, z, width, color='b',align='center', alpha=opacity)
+    ax.xaxis_date()
+    ax.xaxis.set_major_formatter(mdates.DateFormatter('%d/%m'))
+    plt.xticks(x+width, rotation=70)

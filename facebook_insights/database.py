@@ -10,12 +10,12 @@ Session = sessionmaker(bind=engine)
 session = Session()
 Base = declarative_base()
 
-"""
+'''
 from flask.ext.login import UserMixin
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import relationship
 
-#Create a user model (a generic user to be created later)
+#Create a user model
 class User(Base, UserMixin):
     __tablename__ = "users"
 
@@ -23,7 +23,7 @@ class User(Base, UserMixin):
     name = Column(String(128))
     email = Column(String(128), unique=True)
     password = Column(String(128))
-"""
+'''
 
 #Facebook API request model
 class FacebookInsights(Base):
