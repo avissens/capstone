@@ -10,8 +10,7 @@ Session = sessionmaker(bind=engine)
 session = Session()
 Base = declarative_base()
 
-'''
-from flask.ext.login import UserMixin
+from flask_login import UserMixin
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import relationship
 
@@ -23,13 +22,11 @@ class User(Base, UserMixin):
     name = Column(String(128))
     email = Column(String(128), unique=True)
     password = Column(String(128))
-'''
 
 #Facebook API request model
 class FacebookInsights(Base):
     __tablename__ = "facebook_insights"
-#    __table_args__ = (UniqueConstraint('date', 'gender', 'age'),) 
-
+    
     id = Column(Integer, primary_key=True)
     date = Column(DateTime, nullable=False)
     gender = Column(String)
