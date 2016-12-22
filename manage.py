@@ -31,5 +31,25 @@ def adduser():
     session.add(user)
     session.commit()
 
+"""
+# removes any files in /facebook_insights/charts/ older than 7 days
+
+import os, sys, time
+from subprocess import call
+
+now = time.time()
+cutoff = now - (7 * 86400)
+
+charts = os.listdir("/facebook_insights/charts")
+for chart in charts:
+        if os.path.isfile( "/facebook_insights/charts/" + chart ):
+                t = os.stat( "/facebook_insights/charts/" + chart )
+                c = t.st_ctime
+
+                # delete file if older than a week
+                if c < cutoff:
+                        os.remove("/facebook_insights/charts/" + chart)
+"""
+
 if __name__ == '__main__':
     run()

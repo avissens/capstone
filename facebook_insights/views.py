@@ -15,20 +15,21 @@ import matplotlib.dates as mdates
 import numpy as np
 import operator
 
-@app.route('/')
-#@login_required
-def index():
-    return render_template('select.html')
-
-#Supply args for URL    
-#page_name = "name"
-#token = 'token'
-
 from .database import User
 from flask import flash
 from flask_login import login_user, logout_user, login_required
 from werkzeug.security import check_password_hash
 from werkzeug.security import generate_password_hash
+
+@app.route('/')
+#@login_required
+def index():
+    return render_template('select.html')
+
+@app.route('/select')
+#@login_required
+def select():
+    return render_template('select.html')
 
 @app.route("/login", methods=["GET"])
 def login_get():
@@ -51,6 +52,10 @@ def login_post():
 def logout():
     logout_user()
     return render_template("logout.html")
+
+#Supply args for URL    
+page_name = "name"
+token = 'token'
 
 #Calling API
 @app.route("/ptat", methods=["POST"])
@@ -114,7 +119,17 @@ def ptat_post():
     plt.xlabel('Dates')
     plt.legend(['Female', 'Male'], loc='upper left')
     timestr = time.strftime("%Y%m%d-%H%M%S")
+    '''
+    # Get current size
+    fig_size = plt.rcParams["figure.figsize"]
+    print(fig_size)
+    # Set figure width to 12 and height to 6
+    fig_size[0] = 12.0
+    fig_size[1] = 6.0
+    print(fig_size)
+    '''
     plt.savefig('facebook_insights/static/charts/'+timestr+'.png')
+
     return render_template("chart.html", timestr=timestr, since=date_since, until=date_until, peak_date=peak_day, peak_value=peak_value, page_name=page_name)
 
 #printing lots of stuff for testing    
