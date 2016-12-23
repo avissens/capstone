@@ -4,9 +4,10 @@
 <!DOCTYPE html>
 <html>
     <head><title>People Talking About This</title></head>
-    	<h2>People Talking About This by Gender and Age</h2>
-    	<h3>Facebook page: {{ page_name }}</h3>
-    	<h3>Period: {{ since }} - {{ until }}</h3>
+    	<h3>People Talking About This by Gender</h3>
+    	<h4>Facebook page: {{ page_name }}</h4>
+    	<h5>Period: {{ since }} - {{ until }}</h5>
+    	
         <body>
         
         <div class="chart" id="chart">
@@ -15,7 +16,13 @@
             </div>
         </div>  
             
-        <h3>The highest number of female users {{ peak_value }} was registered on {{ peak_date }}. </h3>
+        <h4>The highest number of female users {{ peak_value }} was registered on {{ peak_date }}. </h4>
+        <h4>Messages published on {{ peak_date }}: </h4>
+            <ul>
+            {% for m in data_m %}
+            <li><h5>{{ m.message }}</h5></li>
+            {% endfor %}
+            </ul>
         </body>
 </html>
 {% endblock %}

@@ -30,7 +30,7 @@ def index():
 #@login_required
 def select():
     return render_template('select.html')
-
+    
 @app.route("/login", methods=["GET"])
 def login_get():
     return render_template("login.html")
@@ -54,20 +54,23 @@ def logout():
     return render_template("logout.html")
 
 #Supply args for URL    
-page_name = "name"
-token = 'token'
+page_name = 'bbcnewsnight'
+token = 'EAAQJuWkQanMBAK5WMpzdRgfU4Nh5LeZBZAOAfUUsXlBhuArUtsZCAAEyiMSM8BZCh1E6IEQU1cb60AzXSyZAycbM9SP8os60dCP8dZBRNVfKBGId8yfjX2GzI5p6IVELeUHiWzK9AN9AlU3PTzsoNRdCZC0vbIJxIX2ism7EZBs96NFSFeIB1pqI'
+#page_name = "name"
+#token = 'token'
 
 #Calling API
-@app.route("/ptat", methods=["POST"])
+@app.route("/chart", methods=["POST"])
 #@login_required
 def ptat_post():
-#Convert ddMMMyyy into UNIX datestamp    
+#Convert dates
     date_since = request.form['since']
     date_until = request.form['until']
-    date_since_unix = datetime.datetime.strptime(date_since, '%d/%m/%Y')
-    since = str(int(date_since_unix.timestamp()))
-    date_until_unix = datetime.datetime.strptime(date_until, "%d/%m/%Y")
-    until = str(int(date_until_unix.timestamp()) + 86400)
+    date_since_format = datetime.datetime.strptime(date_since, '%d/%m/%Y')
+    since = str(date_since_format.date())
+    date_until_format = datetime.datetime.strptime(date_until, "%d/%m/%Y") + datetime.timedelta(days=1)
+    until = str(date_until_format.date())
+#Call Facebook API
     r = requests.get('https://graph.facebook.com/v2.8/'+page_name+'/insights/page_story_adds_by_age_gender_unique/day?since='+since+'&until='+until+'&access_token='+token+'')
     json_object = r.json()
     data = json_object['data']
@@ -88,8 +91,7 @@ def ptat_post():
 #Querying the response            
     f_total = session.query(FacebookInsights.date, func.sum(FacebookInsights.value).label('total')).filter(FacebookInsights.gender=='F').group_by(FacebookInsights.date).all()
     m_total = session.query(FacebookInsights.date, func.sum(FacebookInsights.value).label('total')).filter(FacebookInsights.gender=='M').group_by(FacebookInsights.date).all()
-    print(f_total)
-#Manipulating dictionaries
+#Manipulating dictionaries 
     ptat_dic_f = dict(f_total)
     ptat_dic_m = dict(m_total)
     peak_date = max(ptat_dic_f, key=ptat_dic_f.get)
@@ -106,11 +108,11 @@ def ptat_post():
     y = female_values
     z = male_values
     
-    width=0.2
+    width = 0.2
     ax = plt.subplot(111)
-    opacity = 0.7
-    ax.bar(x, y, width=0.2,color='r',align='center', alpha=opacity)
-    ax.bar(x+width, z, width=0.2,color='b',align='center', alpha=opacity)
+    opacity = 0.5
+    ax.bar(x, y, width=0.2,color='orange',align='center', alpha=opacity)
+    ax.bar(x+width, z, width=0.2,color='green',align='center', alpha=opacity)
     ax.xaxis_date()
     ax.xaxis.set_major_formatter(mdates.DateFormatter('%d/%m'))
     plt.xticks(x+(width/2), rotation=70)
@@ -119,6 +121,7 @@ def ptat_post():
     plt.xlabel('Dates')
     plt.legend(['Female', 'Male'], loc='upper left')
     timestr = time.strftime("%Y%m%d-%H%M%S")
+    
     '''
     # Get current size
     fig_size = plt.rcParams["figure.figsize"]
@@ -128,9 +131,19 @@ def ptat_post():
     fig_size[1] = 6.0
     print(fig_size)
     '''
+
     plt.savefig('facebook_insights/static/charts/'+timestr+'.png')
 
-    return render_template("chart.html", timestr=timestr, since=date_since, until=date_until, peak_date=peak_day, peak_value=peak_value, page_name=page_name)
+#Getting all messages on the peak day
+    peak_day_since = str(peak_day)
+    peak_day_until = str(peak_day + datetime.timedelta(days=1))
+    m = requests.get('https://graph.facebook.com/v2.8/'+page_name+'/posts?since='+peak_day_since+'&until='+peak_day_until+'&limit=100&access_token='+token+'')
+    json_object_m = m.json()
+    data_m = json_object_m['data']
+    for m in data_m:
+        message = m['message']
+        print(message)
+    return render_template("chart.html", timestr=timestr, since=date_since, until=date_until, peak_date=peak_day, peak_value=peak_value, page_name=page_name, data_m=data_m)
 
 #printing lots of stuff for testing    
 #    print(session.query(FacebookInsights.date).distinct().all())
@@ -140,6 +153,3 @@ def ptat_post():
 #    print(session.query(FacebookInsights.value).order_by(FacebookInsights.value.desc()).first())
 #    f_query, f_peak_date = session.query(FacebookInsights.value, FacebookInsights.date).filter(FacebookInsights.gender=='F').order_by(FacebookInsights.value.desc()).first()
 #    print("The highest number of female users was " + str(f_query) + " on " + str(f_peak_date))
-
-
-    
