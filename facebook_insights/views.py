@@ -31,9 +31,9 @@ def index():
 def select():
     return render_template('select.html')
     
-@app.route("/login", methods=["GET"])
+@app.route('/login', methods=['GET'])
 def login_get():
-    return render_template("login.html")
+    return render_template('login.html')
     
 """
 @app.route("/login", methods=["POST"])
@@ -48,19 +48,20 @@ def login_post():
     return redirect(request.args.get('next') or url_for("entries"))
 """
 
-@app.route("/logout")
+@app.route('/logout')
 def logout():
     logout_user()
-    return render_template("logout.html")
+    return render_template('logout.html')
 
-#Supply args for URL    
+#Supply args for URL  
 #page_name = "name"
 #token = 'token'
 
 #Calling API
-@app.route("/chart", methods=["POST"])
+@app.route('/chart', methods=['POST'])
 #@login_required
 def ptat_post():
+    session.query(FacebookInsights).delete()
 #Convert dates
     date_since = request.form['since']
     date_until = request.form['until']
@@ -85,7 +86,7 @@ def ptat_post():
             ptat = FacebookInsights(date=date, gender=key[0], age=key[2:], value=ufm)
             session.add(ptat)
             session.commit()
-
+            
 #Querying the response            
     f_total = session.query(FacebookInsights.date, func.sum(FacebookInsights.value).label('total')).filter(FacebookInsights.gender=='F').group_by(FacebookInsights.date).all()
     m_total = session.query(FacebookInsights.date, func.sum(FacebookInsights.value).label('total')).filter(FacebookInsights.gender=='M').group_by(FacebookInsights.date).all()
@@ -106,6 +107,7 @@ def ptat_post():
     y = female_values
     z = male_values
     
+    plt.figure()
     width = 0.2
     ax = plt.subplot(111)
     opacity = 0.5
@@ -119,7 +121,7 @@ def ptat_post():
     plt.xlabel('Dates')
     plt.legend(['Female', 'Male'], loc='upper left')
     timestr = time.strftime("%Y%m%d-%H%M%S")
-    
+  
     '''
     # Get current size
     fig_size = plt.rcParams["figure.figsize"]
@@ -141,13 +143,4 @@ def ptat_post():
     for m in data_m:
         message = m['message']
         print(message)
-    return render_template("chart.html", timestr=timestr, since=date_since, until=date_until, peak_date=peak_day, peak_value=peak_value, page_name=page_name, data_m=data_m)
-
-#printing lots of stuff for testing    
-#    print(session.query(FacebookInsights.date).distinct().all())
-#    print(session.query(FacebookInsights.gender).distinct().all())
-#    print(session.query(FacebookInsights.age).distinct().all())
-#    print(session.query(FacebookInsights.date).order_by(FacebookInsights.date.desc()).first())
-#    print(session.query(FacebookInsights.value).order_by(FacebookInsights.value.desc()).first())
-#    f_query, f_peak_date = session.query(FacebookInsights.value, FacebookInsights.date).filter(FacebookInsights.gender=='F').order_by(FacebookInsights.value.desc()).first()
-#    print("The highest number of female users was " + str(f_query) + " on " + str(f_peak_date))
+    return render_template('chart.html', timestr=timestr, since=date_since, until=date_until, peak_date=peak_day, peak_value=peak_value, page_name=page_name, data_m=data_m)
