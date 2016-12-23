@@ -54,8 +54,6 @@ def logout():
     return render_template("logout.html")
 
 #Supply args for URL    
-page_name = 'bbcnewsnight'
-token = 'EAAQJuWkQanMBAK5WMpzdRgfU4Nh5LeZBZAOAfUUsXlBhuArUtsZCAAEyiMSM8BZCh1E6IEQU1cb60AzXSyZAycbM9SP8os60dCP8dZBRNVfKBGId8yfjX2GzI5p6IVELeUHiWzK9AN9AlU3PTzsoNRdCZC0vbIJxIX2ism7EZBs96NFSFeIB1pqI'
 #page_name = "name"
 #token = 'token'
 
