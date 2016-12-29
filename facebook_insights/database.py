@@ -19,11 +19,11 @@ class User(Base, UserMixin):
     __tablename__ = "users"
 
     id = Column(Integer, primary_key=True)
-    name = Column(String(128))
+    username = Column(String(128))
     email = Column(String(128), unique=True)
     password = Column(String(128))
 
-#Facebook API request model
+#Create Facebook API request model
 class FacebookInsights(Base):
     __tablename__ = "facebook_insights"
     
@@ -33,7 +33,8 @@ class FacebookInsights(Base):
     age = Column(String)
     value = Column(Integer)
     
-#droping the table
-Base.metadata.drop_all(engine)
+#dropping the table
+#Base.metadata.drop_all(engine)
+session.query(FacebookInsights).delete()
 #creating the table
 Base.metadata.create_all(engine)

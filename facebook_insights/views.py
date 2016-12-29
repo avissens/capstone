@@ -22,38 +22,34 @@ from werkzeug.security import check_password_hash
 from werkzeug.security import generate_password_hash
 
 @app.route('/')
-#@login_required
 def index():
-    return render_template('select.html')
+    return render_template('login.html')
 
-@app.route('/select')
-#@login_required
-def select():
-    return render_template('select.html')
-    
 @app.route('/login', methods=['GET'])
 def login_get():
     return render_template('login.html')
+
+@app.route('/select')
+def select():
+    return render_template('select.html')
     
-"""
-@app.route("/login", methods=["POST"])
+@app.route('/login', methods=["POST"])
 def login_post():
-    email = request.form["email"]
-    password = request.form["password"]
-    user = session.query(User).filter_by(email=email).first()
+    username = request.form['username']
+    password = request.form['password']
+    user = session.query(User).filter_by(username=username).first()
     if not user or not check_password_hash(user.password, password):
-        flash("Incorrect username or password", "danger")
-        return redirect(url_for("login_get"))
+        flash('Incorrect username or password', 'danger')
+        return redirect(url_for('login_get'))
     login_user(user)
-    return redirect(request.args.get('next') or url_for("entries"))
-"""
+    return redirect(request.args.get('next'))
 
 @app.route('/logout')
 def logout():
     logout_user()
-    return render_template('logout.html')
+    return redirect("/")
 
-#Supply args for URL  
+#Supply args for URL
 #page_name = "name"
 #token = 'token'
 
@@ -61,7 +57,9 @@ def logout():
 @app.route('/chart', methods=['POST'])
 #@login_required
 def ptat_post():
+#Deleting the data for the next plot  
     session.query(FacebookInsights).delete()
+
 #Convert dates
     date_since = request.form['since']
     date_until = request.form['until']
@@ -69,6 +67,7 @@ def ptat_post():
     since = str(date_since_format.date())
     date_until_format = datetime.datetime.strptime(date_until, "%d/%m/%Y") + datetime.timedelta(days=1)
     until = str(date_until_format.date())
+
 #Call Facebook API
     r = requests.get('https://graph.facebook.com/v2.8/'+page_name+'/insights/page_story_adds_by_age_gender_unique/day?since='+since+'&until='+until+'&access_token='+token+'')
     json_object = r.json()
@@ -76,6 +75,7 @@ def ptat_post():
     values = data[0]['values']
     gender_age_brackets = ('U.13-17','U.18-24','U.25-34','U.35-44','U.45-54','U.55-64','U.65+','F.13-17','F.18-24','F.25-34','F.35-44','F.45-54','F.55-64','F.65+','M.13-17','M.18-24','M.25-34','M.35-44','M.45-54','M.55-64','M.65+')
     ptat_dic = dict.fromkeys(gender_age_brackets)
+
 #Iterate through the response
     values = data[0]['values']
     for item in values:
@@ -90,13 +90,15 @@ def ptat_post():
 #Querying the response            
     f_total = session.query(FacebookInsights.date, func.sum(FacebookInsights.value).label('total')).filter(FacebookInsights.gender=='F').group_by(FacebookInsights.date).all()
     m_total = session.query(FacebookInsights.date, func.sum(FacebookInsights.value).label('total')).filter(FacebookInsights.gender=='M').group_by(FacebookInsights.date).all()
+
 #Manipulating dictionaries 
     ptat_dic_f = dict(f_total)
     ptat_dic_m = dict(m_total)
     peak_date = max(ptat_dic_f, key=ptat_dic_f.get)
     peak_day = peak_date.date()
+    peak_date_dmy = datetime.datetime.strptime(str(peak_day), '%Y-%m-%d').strftime('%d/%m/%Y')
     peak_value = ptat_dic_f[peak_date]
-    peak_value = format(peak_value, ",d")
+    peak_value = format(peak_value, ',d')
     female_keys = list(ptat_dic_f.keys())
     female_values = list(ptat_dic_f.values())
     male_values = list(ptat_dic_m.values())
@@ -107,7 +109,8 @@ def ptat_post():
     y = female_values
     z = male_values
     
-    plt.figure()
+    plt.figure(figsize=(10, 4.5))
+    matplotlib.rcParams.update({'font.size': 10})
     width = 0.2
     ax = plt.subplot(111)
     opacity = 0.5
@@ -121,26 +124,16 @@ def ptat_post():
     plt.xlabel('Dates')
     plt.legend(['Female', 'Male'], loc='upper left')
     timestr = time.strftime("%Y%m%d-%H%M%S")
-  
-    '''
-    # Get current size
-    fig_size = plt.rcParams["figure.figsize"]
-    print(fig_size)
-    # Set figure width to 12 and height to 6
-    fig_size[0] = 12.0
-    fig_size[1] = 6.0
-    print(fig_size)
-    '''
-
     plt.savefig('facebook_insights/static/charts/'+timestr+'.png')
 
 #Getting all messages on the peak day
     peak_day_since = str(peak_day)
     peak_day_until = str(peak_day + datetime.timedelta(days=1))
     m = requests.get('https://graph.facebook.com/v2.8/'+page_name+'/posts?since='+peak_day_since+'&until='+peak_day_until+'&limit=100&access_token='+token+'')
+    print('https://graph.facebook.com/v2.8/'+page_name+'/posts?since='+peak_day_since+'&until='+peak_day_until+'&limit=100&access_token='+token+'')
     json_object_m = m.json()
     data_m = json_object_m['data']
     for m in data_m:
         message = m['message']
         print(message)
-    return render_template('chart.html', timestr=timestr, since=date_since, until=date_until, peak_date=peak_day, peak_value=peak_value, page_name=page_name, data_m=data_m)
+    return render_template('chart.html', timestr=timestr, since=date_since, until=date_until, peak_date=peak_date_dmy, peak_value=peak_value, page_name=page_name, data_m=data_m)
