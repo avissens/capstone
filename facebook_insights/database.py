@@ -35,6 +35,6 @@ class FacebookInsights(Base):
     
 #dropping the table
 #Base.metadata.drop_all(engine)
-session.query(FacebookInsights).delete()
 #creating the table
 Base.metadata.create_all(engine)
+session.query(FacebookInsights).delete()
