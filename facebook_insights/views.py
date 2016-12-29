@@ -130,10 +130,20 @@ def ptat_post():
     peak_day_since = str(peak_day)
     peak_day_until = str(peak_day + datetime.timedelta(days=1))
     m = requests.get('https://graph.facebook.com/v2.8/'+page_name+'/posts?since='+peak_day_since+'&until='+peak_day_until+'&limit=100&access_token='+token+'')
-    print('https://graph.facebook.com/v2.8/'+page_name+'/posts?since='+peak_day_since+'&until='+peak_day_until+'&limit=100&access_token='+token+'')
     json_object_m = m.json()
     data_m = json_object_m['data']
     for m in data_m:
         message = m['message']
-        print(message)
+        
+    '''    
+#Call Facebook API to get posts data
+    for i in data_m:
+        post_id = i['id']
+        p = requests.get('https://developers.facebook.com/tools/explorer?method=GET&path='+post_id+'%3Ffields%3Dfull_picture%2C%20picture%2C%20link%2C%20message&version=v2.8')
+        json_object_p = p.json()
+        print(json_object_p)
+        picture = json_object_p.get('picture') #This is URL
+        link = json_object_p.get('link')
+        text = json_object_p.get('message')
+        '''
     return render_template('chart.html', timestr=timestr, since=date_since, until=date_until, peak_date=peak_date_dmy, peak_value=peak_value, page_name=page_name, data_m=data_m)
