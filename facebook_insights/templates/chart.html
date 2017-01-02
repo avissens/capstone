@@ -1,6 +1,5 @@
 {% extends "base.html" %}
 {% block content %}
-
 <!DOCTYPE html>
 <html>
     <head><title>People Talking About This</title></head>
@@ -17,12 +16,18 @@
         </div>  
             
         <h4>The highest number of female users {{ peak_value }} was registered on {{ peak_date }}. </h4>
-        <h4>Messages published on {{ peak_date }}: </h4>
-            <ul>
-            {% for m in data_m %}
-            <li><h5>{{ m.message }}</h5></li>
+
+            {% if data_m %}  
+        <h4>Messages published on {{ peak_date }}: </h4>                      
+            {% for picture, link, message in posts %}
+                <img src="{{ picture }}">
+                <a href="{{ link }}"><h5>{{ message }}</h5></a>
+
             {% endfor %}
-            </ul>
+            {% else %}
+        <h4>No messages were published on {{ peak_date }}. </h4>
+            {% endif %}
+
         </body>
 </html>
 {% endblock %}

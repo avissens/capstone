@@ -21,6 +21,8 @@ from flask_login import login_user, logout_user, login_required
 from werkzeug.security import check_password_hash
 from werkzeug.security import generate_password_hash
 
+print('Hello world')
+
 @app.route('/')
 def index():
     return render_template('login.html')
@@ -132,18 +134,28 @@ def ptat_post():
     m = requests.get('https://graph.facebook.com/v2.8/'+page_name+'/posts?since='+peak_day_since+'&until='+peak_day_until+'&limit=100&access_token='+token+'')
     json_object_m = m.json()
     data_m = json_object_m['data']
-    for m in data_m:
-        message = m['message']
-        
-    '''    
-#Call Facebook API to get posts data
+    peak_picture = []
+    peak_link = []
+    peak_message = []
+#    peak_time = []
+#Call Facebook API to get posts' data: picture, link, message
     for i in data_m:
         post_id = i['id']
-        p = requests.get('https://developers.facebook.com/tools/explorer?method=GET&path='+post_id+'%3Ffields%3Dfull_picture%2C%20picture%2C%20link%2C%20message&version=v2.8')
+        p = requests.get('https://graph.facebook.com/v2.8/'+post_id+'?fields=full_picture, picture, link, message, created_time&limit=100&access_token='+token+'')
+#        print(p.status_code) #check that status of the response
         json_object_p = p.json()
-        print(json_object_p)
-        picture = json_object_p.get('picture') #This is URL
-        link = json_object_p.get('link')
-        text = json_object_p.get('message')
-        '''
-    return render_template('chart.html', timestr=timestr, since=date_since, until=date_until, peak_date=peak_date_dmy, peak_value=peak_value, page_name=page_name, data_m=data_m)
+        picture = json_object_p['picture'] #This is URL
+        peak_picture.append(picture)
+        posts_picture = peak_picture
+        link = json_object_p['link'] #This is URL too
+        peak_link.append(link)
+        posts_link = peak_link
+        message = json_object_p['message']
+        peak_message.append(message)
+        posts_message = peak_message
+#        timestamp = json_object_p['created_time']
+#        print(timestamp)
+#        peak_time.append(timestamp)
+#        posts_time = peak_time
+        posts = zip(posts_picture, posts_link, posts_message)
+    return render_template('chart.html', page_name=page_name, timestr=timestr, since=date_since, until=date_until, peak_date=peak_date_dmy, peak_value=peak_value, data_m=data_m, posts=posts)
