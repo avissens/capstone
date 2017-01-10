@@ -13,17 +13,23 @@
             <div>
             <img src="/static/charts/{{ timestr }}.png">
             </div>
-        </div>  
             
         <h4>The highest number of female users {{ peak_value }} was registered on {{ peak_date }}. </h4>
 
             {% if data_m %}  
-        <h4>Messages published on {{ peak_date }}: </h4>                      
-            {% for picture, link, message in posts %}
-                <img src="{{ picture }}">
-                <a href="{{ link }}"><h5>{{ message }}</h5></a>
-
+        <h4>Messages published on {{ peak_date }}: </h4>
+            <ul>
+            {% for picture, link, message, time in posts %}
+            <div class="post" id="post">
+                <div>
+            <li>
+                <img class="TextWrap" src="{{ picture }}">
+                <a href="{{ link }}">{{ message }}</a><p>
+                {{ time }}
+            </li>   
+                </div>
             {% endfor %}
+            </ul> 
             {% else %}
         <h4>No messages were published on {{ peak_date }}. </h4>
             {% endif %}

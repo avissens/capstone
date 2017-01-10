@@ -1,11 +1,6 @@
 import os
 from facebook_insights import app
-from flask import Flask, render_template, request
 from facebook_insights.database import session, FacebookInsights, User
-import datetime
-import calendar
-import requests
-import re
 from getpass import getpass
 from werkzeug.security import generate_password_hash
 from flask_script import Manager
@@ -34,25 +29,27 @@ def adduser():
     session.commit()
 
 #Remove any files in facebook_insights/charts/ older than 7 days
-'''
+
 import os, sys, time
 from subprocess import call
 
-now = time.time()
-cutoff = now - (7 * 86400)
-
-charts = os.listdir("facebook_insights/charts")
-for chart in charts:
-    if not chart.endswith(".png"): 
-        continue
-    if os.path.isfile( "facebook_insights/charts/" + chart ):
-            t = os.stat( "facebook_insights/charts/" + chart )
-            c = t.st_ctime
-
-            # delete file if older than a week
-            if c < cutoff:
-                    os.remove("facebook_insights/charts/" + chart)
-'''
+@manager.command
+def clean_charts():
+    now = time.time()
+    cutoff = now - (7 * 86400)
+    
+    charts = os.listdir("facebook_insights/charts")
+    for chart in charts:
+        if not chart.endswith(".png"): 
+            continue
+        if os.path.isfile( "facebook_insights/charts/" + chart ):
+                t = os.stat( "facebook_insights/charts/" + chart )
+                c = t.st_ctime
+    
+                # delete file if older than a week
+                if c < cutoff:
+                        os.remove("facebook_insights/charts/" + chart)
+                        print("Deleted")
 
 if __name__ == "__main__":
     manager.run()
