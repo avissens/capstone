@@ -51,6 +51,8 @@ def logout():
     return redirect("/")
 
 #Supply args for URL
+page_name = 'bbcnewsnight'
+token = 'EAAQJuWkQanMBAK5WMpzdRgfU4Nh5LeZBZAOAfUUsXlBhuArUtsZCAAEyiMSM8BZCh1E6IEQU1cb60AzXSyZAycbM9SP8os60dCP8dZBRNVfKBGId8yfjX2GzI5p6IVELeUHiWzK9AN9AlU3PTzsoNRdCZC0vbIJxIX2ism7EZBs96NFSFeIB1pqI'
 #page_name = "name"
 #token = 'token'
 
@@ -60,10 +62,19 @@ def logout():
 def ptat_post():
 #Deleting the data for the next plot  
     session.query(FacebookInsights).delete()
-
-#Convert dates
-    date_since = request.form['since']
+    #Convert dates
+    date_since = request.form['since']    
+    try:
+        datetime.datetime.strptime(date_since, '%d/%m/%Y')
+    except ValueError:
+        flash('Incorrect date format. Enter dates using dd/mm/yyy.', 'danger')
+        return render_template('select.html')
     date_until = request.form['until']
+    try:
+        datetime.datetime.strptime(date_until, '%d/%m/%Y')
+    except ValueError:
+        flash('Incorrect date format. Enter dates using dd/mm/yyy.', 'danger')
+        return render_template('select.html')
     date_since_format = datetime.datetime.strptime(date_since, '%d/%m/%Y')
     since = str(date_since_format.date())
     date_until_format = datetime.datetime.strptime(date_until, "%d/%m/%Y") + datetime.timedelta(days=1)
@@ -73,7 +84,11 @@ def ptat_post():
     r = requests.get('https://graph.facebook.com/v2.8/'+page_name+'/insights/page_story_adds_by_age_gender_unique/day?since='+since+'&until='+until+'&access_token='+token+'')
     json_object = r.json()
     data = json_object['data']
-    values = data[0]['values']
+    try:
+        values = data[0]['values']
+    except IndexError:
+        flash('Incorrect date range. Please try again.', 'danger')
+        return render_template('select.html')
     gender_age_brackets = ('U.13-17','U.18-24','U.25-34','U.35-44','U.45-54','U.55-64','U.65+','F.13-17','F.18-24','F.25-34','F.35-44','F.45-54','F.55-64','F.65+','M.13-17','M.18-24','M.25-34','M.35-44','M.45-54','M.55-64','M.65+')
     ptat_dic = dict.fromkeys(gender_age_brackets)
 
@@ -82,7 +97,11 @@ def ptat_post():
     for item in values:
         date = item['end_time']
         for key in gender_age_brackets:
-            ufm = item['value'].get(key, 0)
+            try:
+                ufm = item['value'].get(key, 0)
+            except KeyError:
+                flash('The end date should be at least 1 day before yeasterday. Please try again.', 'danger')
+                return render_template('select.html')
             ptat_dic[key] = ufm
             ptat = FacebookInsights(date=date, gender=key[0], age=key[2:], value=ufm)
             session.add(ptat)
@@ -118,10 +137,12 @@ def ptat_post():
     ax.bar(x+width, z, width=width,color='green',align='center', alpha=opacity)
     ax.xaxis_date()
     ax.xaxis.set_major_formatter(mdates.DateFormatter('%d/%m'))
-    plt.xticks(x+(width/2), rotation=60)
+    plt.xticks(x+(width/2), rotation=30)
+    ax.tick_params(axis='x', labelsize=8)
+    ax.tick_params(axis='y', labelsize=10)
     plt.title('People Talking About This by Gender')
     plt.ylabel('PTAT')
-    plt.xlabel('Dates')
+#    plt.xlabel('Dates')
     plt.legend(['Female', 'Male'], loc='upper left')
     timestr = time.strftime("%Y%m%d-%H%M%S")
     plt.savefig('facebook_insights/static/charts/'+timestr+'.png')

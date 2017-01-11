@@ -38,17 +38,17 @@ def clean_charts():
     now = time.time()
     cutoff = now - (7 * 86400)
     
-    charts = os.listdir("facebook_insights/charts")
+    charts = os.listdir("facebook_insights/static/charts")
     for chart in charts:
         if not chart.endswith(".png"): 
             continue
-        if os.path.isfile( "facebook_insights/charts/" + chart ):
-                t = os.stat( "facebook_insights/charts/" + chart )
+        if os.path.isfile( "facebook_insights/static/charts/" + chart ):
+                t = os.stat( "facebook_insights/static/charts/" + chart )
                 c = t.st_ctime
     
                 # delete file if older than a week
                 if c < cutoff:
-                        os.remove("facebook_insights/charts/" + chart)
+                        os.remove("facebook_insights/static/charts/" + chart)
                         print("Deleted")
 
 if __name__ == "__main__":
