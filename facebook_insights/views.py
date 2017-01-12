@@ -21,6 +21,8 @@ from flask_login import login_user, logout_user, login_required
 from werkzeug.security import check_password_hash
 from werkzeug.security import generate_password_hash
 
+from .keys import * # ImportError check keys_sample.py
+
 @app.route('/')
 def index():
     return render_template('login.html')
@@ -50,12 +52,6 @@ def logout():
     logout_user()
     return redirect("/")
 
-#Supply args for URL
-page_name = 'bbcnewsnight'
-token = 'EAAQJuWkQanMBAK5WMpzdRgfU4Nh5LeZBZAOAfUUsXlBhuArUtsZCAAEyiMSM8BZCh1E6IEQU1cb60AzXSyZAycbM9SP8os60dCP8dZBRNVfKBGId8yfjX2GzI5p6IVELeUHiWzK9AN9AlU3PTzsoNRdCZC0vbIJxIX2ism7EZBs96NFSFeIB1pqI'
-#page_name = "name"
-#token = 'token'
-
 #Calling API
 @app.route('/chart', methods=['POST'])
 @login_required
@@ -79,7 +75,8 @@ def ptat_post():
     since = str(date_since_format.date())
     date_until_format = datetime.datetime.strptime(date_until, "%d/%m/%Y") + datetime.timedelta(days=1)
     until = str(date_until_format.date())
-
+    
+    page_name = request.form['page_name']
 #Call Facebook API
     r = requests.get('https://graph.facebook.com/v2.8/'+page_name+'/insights/page_story_adds_by_age_gender_unique/day?since='+since+'&until='+until+'&access_token='+token+'')
     json_object = r.json()
