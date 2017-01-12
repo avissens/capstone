@@ -58,7 +58,7 @@ def logout():
 def ptat_post():
 #Deleting the data for the next plot  
     session.query(FacebookInsights).delete()
-    #Convert dates
+    #Convert dates & check if format is correct
     date_since = request.form['since']    
     try:
         datetime.datetime.strptime(date_since, '%d/%m/%Y')
@@ -159,7 +159,7 @@ def ptat_post():
     for i in data_m:
         post_id = i['id']
         p = requests.get('https://graph.facebook.com/v2.8/'+post_id+'?fields=full_picture, picture, link, message, created_time&limit=100&access_token='+token+'')
-#        print(p.status_code) #check that status of the response
+#        print(p.status_code) #check the status of the response
         json_object_p = p.json()
         picture = json_object_p['full_picture'] #This is URL
         peak_picture.append(picture)
