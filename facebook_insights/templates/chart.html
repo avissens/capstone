@@ -3,9 +3,28 @@
 <!DOCTYPE html>
 <html>
     <head><title>People Talking About This</title></head>
+    
+    	<h4>Enter start and end dates and select a page:</h4>
+	<body>
+		<form method="POST" action="/chart">
+			From: <input type="datetime" name="since" placeholder="dd/mm/yyyy" required>
+			To: <input type="datetime" name="until" placeholder="dd/mm/yyyy" required>
+			Page: 
+				<select name="page_name">
+    				<option value="bbcnews">BBC News</option>
+    				<option value="bbcstories">BBC Stories</option>
+    				<option value="bbctrending">BBC Trending</option>
+    				<option value="bbcnewsnight">BBC Newsnight</option>
+    				<option value="bbcmundo">BBC Mundo</option>
+    				<option value="bbcbrasil">BBC Brasil</option>
+    				<option value="bbcarabic">BBC Arabic</option>
+				</select>
+		    <button type="submit" class="btn btn-default">Submit</button>
+		</form>
+		
     	<h3>People Talking About This by Gender</h3>
-    	<h4>Facebook page: {{ page_name }}</h4>
-    	<h5>Period: {{ since }} - {{ until }}</h5>
+    	<h4>Facebook page: <b>{{ page_name }}</b></h4>
+    	<h5>Period: <b>{{ since }} - {{ until }}</b></h5>
     	
         <body>
         
@@ -14,10 +33,10 @@
             <img src="/static/charts/{{ timestr }}.png">
             </div>
             
-        <h4>The highest number of female users {{ peak_value }} was registered on {{ peak_date }}. </h4>
-
+        <h4>The average percent of female users for this period ot time was <b>{{ f_average }}%</b>.</h4>    
+        <h4>The highest percent of female users <b>{{ peak_value }}%</b> was registered on <b>{{ peak_date }}</b>. </h4>
             {% if data_m %}  
-        <h4>Messages published on {{ peak_date }}: </h4>
+        <h4>Posts published on <b>{{ peak_date }}</b>: </h4>
             <ul>
             {% for picture, link, message, time in posts %}
             <div class="post" id="post">
@@ -31,7 +50,7 @@
             {% endfor %}
             </ul> 
             {% else %}
-        <h4>No messages were published on {{ peak_date }}. </h4>
+        <h4>Facebook API doesn't return any messages on {{ peak_date }}. Please choose a different time range.</h4>
             {% endif %}
 
         </body>

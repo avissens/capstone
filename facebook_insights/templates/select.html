@@ -5,7 +5,7 @@
 	<head>
 		<title>Select dates</title>
 	
-	<h2>Please enter start and end dates and select a page:</h2>
+	<h4>To explore further enter start and end dates and select a page:</h4>
 	<body>
 		<form method="POST" action="/chart">
 			From: <input type="datetime" name="since" placeholder="dd/mm/yyyy" required>
@@ -13,10 +13,24 @@
 			Page: 
 				<select name="page_name">
     				<option value="bbcnews">BBC News</option>
+    				<option value="bbcstories">BBC Stories</option>
+    				<option value="bbctrending">BBC Trending</option>
     				<option value="bbcnewsnight">BBC Newsnight</option>
+    				<option value="bbcmundo">BBC Mundo</option>
+    				<option value="bbcbrasil">BBC Brasil</option>
+    				<option value="bbcarabic">BBC Arabic</option>
 				</select>
 		    <button type="submit" class="btn btn-default">Submit</button>
 		</form>
+    	<h5>Facebook page: <b>{{ page_name }}</b></h5>
+    	<h5>Period: <b>{{ since }} - {{ until }}</b></h5>
+    	<h5>The average percent of female users for this period ot time was <b>{{ f_average }}%</b>.</h5>  
+    	
+        <div class="chart" id="chart">
+            <div>
+            <img src="/static/charts/{{ timestr }}.png">
+            </div>
+
 	</body>
 </html>
 {% endblock %}
