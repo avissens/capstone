@@ -186,8 +186,6 @@ def ptat_post():
 #Manipulating dictionaries 
     ptat_dic_f = dict(f_total)
     ptat_dic_m = dict(m_total)
-    print(ptat_dic_f)
-    print(ptat_dic_m)
     female_keys = list(ptat_dic_f.keys())
     female_values = list(ptat_dic_f.values())
     male_values = list(ptat_dic_m.values())
@@ -201,8 +199,6 @@ def ptat_post():
     diff_dic = female_dic - male_dic
     sum_dic = female_dic + male_dic
     pct_f_dic={x:float(ptat_dic_f[x]*100)/sum_dic[x] for x in sum_dic}
-    print(sum_dic)
-    print(pct_f_dic)
     pct_f_max = max(pct_f_dic, key=pct_f_dic.get)
     peak_day = pct_f_max.date()
     peak_date_dmy = datetime.datetime.strptime(str(peak_day), '%Y-%m-%d').strftime('%d/%m/%Y')
